@@ -990,6 +990,13 @@ public class ContentProviderHelper {
             final ContentProviderHolder holder = getContentProviderExternalUnchecked(name, null,
                     callingUid, "*getmimetype*", safeUserId);
             if (holder != null) {
+                // Check app visibility to prevent side-channel attacks
+                if (!mService.getPackageManagerInternalLocked().canAccessComponent(
+                        callingUid, holder.info.packageName, safeUserId)) {
+                    Log.w(TAG, "Provider " + name + " not visible to caller " + callingUid);
+                    resultCallback.sendResult(Bundle.EMPTY);
+                    return;
+                }
                 holder.provider.getTypeAsync(uri, new RemoteCallback(result -> {
                     final long identity = Binder.clearCallingIdentity();
                     try {
