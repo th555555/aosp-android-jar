@@ -592,6 +592,10 @@ public final class ContentService extends IContentService.Stub {
         final int callingUid = Binder.getCallingUid();
         final int callingPid = Binder.getCallingPid();
 
+        if (!hasAccountAccess(true, account, callingUid)) {
+            return;
+        }
+
         validateExtras(callingUid, extras);
         final int syncExemption = getSyncExemptionAndCleanUpExtrasForCaller(callingUid, extras);
 
